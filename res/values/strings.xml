@@ -9,6 +9,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Preferences</string>
     <string name="title_activity_main">OpenMensa</string>
+    <string name="title_activity_canteen_finder">CanteenFinder</string>
     
     <string name="today">today</string>
     <string name="yesterday">yesterday</string>
