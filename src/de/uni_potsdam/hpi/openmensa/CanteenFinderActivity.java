@@ -100,8 +100,7 @@ public class CanteenFinderActivity extends Activity implements OnFinishedFetchin
 	 */
 	protected void updateCanteens(Location location, int radius, boolean b) {
 		if (location != null) {
-			Log.d(TAG, "Updating place list.");
-			Log.d(TAG, location.getLatitude() + " - kkk " + location.getLongitude());
+			Log.d(TAG, "Updating canteens for location [" + location.getLatitude() + ", " + location.getLongitude() + "]");
 			
 			// fetch canteen list from server
 			String baseUrl = SettingsProvider.getSourceUrl(this);
@@ -110,7 +109,7 @@ public class CanteenFinderActivity extends Activity implements OnFinishedFetchin
 			RetrieveFeedTask task = new RetrieveCanteenFeedTask(this, this, url, false);
 			task.execute(url);
 		} else
-			Log.d(TAG, "Updating place list for: No Previous Location Found");
+			Log.d(TAG, "Updating canteens list for: No Previous Location Found");
 	}
 
 	@Override
