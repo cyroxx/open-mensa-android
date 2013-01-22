@@ -3,6 +3,8 @@ package de.uni_potsdam.hpi.openmensa.api;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import android.location.Location;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -46,6 +48,17 @@ public class Canteen {
 	@Override
 	public String toString() {
 		return name;
+	}
+	
+	public Location getLocation() {
+		if (coordinates == null) return null;
+		
+		Location location = new Location("OPENMENSA"); // use dummy location provider
+		
+		location.setLatitude( coordinates[0] );
+		location.setLongitude( coordinates[1] );
+		
+		return location;
 	}
 
 	public void updateDays(Days newDays) {
