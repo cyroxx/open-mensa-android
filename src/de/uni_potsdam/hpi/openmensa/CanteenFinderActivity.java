@@ -1,5 +1,6 @@
 package de.uni_potsdam.hpi.openmensa;
 
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import android.app.Activity;
@@ -8,6 +9,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import de.uni_potsdam.hpi.openmensa.api.Canteen;
 import de.uni_potsdam.hpi.openmensa.api.Canteens;
 import de.uni_potsdam.hpi.openmensa.api.preferences.SettingsProvider;
@@ -22,6 +25,7 @@ public class CanteenFinderActivity extends Activity implements OnFinishedFetchin
 	
 	protected ILastLocationFinder lastLocationFinder;
 	protected Location location;
+	protected ArrayAdapter<Canteen> canteenListAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +33,10 @@ public class CanteenFinderActivity extends Activity implements OnFinishedFetchin
 		setContentView(R.layout.activity_canteen_finder);
 		
 		lastLocationFinder = new LastLocationFinder(this);
+		
+		canteenListAdapter = new ArrayAdapter<Canteen>(this, android.R.layout.simple_list_item_1);
+		ListView listView = (ListView) findViewById(R.id.canteen_list_view);
+		listView.setAdapter(canteenListAdapter);
 	}
 	
 	@Override
@@ -109,13 +117,19 @@ public class CanteenFinderActivity extends Activity implements OnFinishedFetchin
 	public void onCanteenFetchFinished(RetrieveCanteenFeedTask task) {
 		Canteens canteens = task.getCanteens();
 		
+		ArrayList<Canteen> canteenList = new ArrayList<Canteen>();
 		for (Entry<String, Canteen> entry : canteens.entrySet()) {
 			Canteen canteen = entry.getValue();
+			
+			canteenList.add(canteen);
 			
 			Log.d(TAG, "ID: " + canteen.key);
 			Log.d(TAG, "Name: " + canteen.name);
 			Log.d(TAG, "Distance: " + location.distanceTo( canteen.getLocation() ));
 		}
+		
+		canteenListAdapter.clear();
+		canteenListAdapter.addAll( canteenList );
 		
 	}
 
