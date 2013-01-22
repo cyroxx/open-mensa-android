@@ -1,6 +1,8 @@
 package de.uni_potsdam.hpi.openmensa;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map.Entry;
 
 import android.app.Activity;
@@ -126,6 +128,28 @@ public class CanteenFinderActivity extends Activity implements OnFinishedFetchin
 			Log.d(TAG, "Name: " + canteen.name);
 			Log.d(TAG, "Distance: " + location.distanceTo( canteen.getLocation() ));
 		}
+		
+		Comparator<Canteen> comparator = new Comparator<Canteen>() {
+
+			@Override
+			public int compare(Canteen first, Canteen second) {
+				int result;
+				
+				float firstDistance = location.distanceTo( first.getLocation() );
+				float secondDistance = location.distanceTo( second.getLocation() );
+				
+				if (firstDistance < secondDistance)
+					result = -1;
+				else if (firstDistance == secondDistance)
+					result = 0;
+				else
+					result = 1;
+				
+				return result;
+			}
+		};
+		
+		Collections.sort(canteenList, comparator);
 		
 		canteenListAdapter.clear();
 		canteenListAdapter.addAll( canteenList );
