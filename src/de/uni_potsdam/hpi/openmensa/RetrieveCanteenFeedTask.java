@@ -20,13 +20,17 @@ public class RetrieveCanteenFeedTask extends RetrieveFeedTask {
 	private int currentPage = 1;
 	private String url;
 	
-	public RetrieveCanteenFeedTask(Context context, OnFinishedFetchingCanteensListener fetchListener, String url) {
+	public RetrieveCanteenFeedTask(Context context, OnFinishedFetchingCanteensListener fetchListener, String url, boolean showProgressDialog) {
 		super(context);
 		
 		this.url = url;
 		this.canteens = new Canteens();
 		this.fetchListener = fetchListener;
-		this.visible = true;
+		this.visible = showProgressDialog;
+	}
+	
+	public RetrieveCanteenFeedTask(Context context, OnFinishedFetchingCanteensListener fetchListener, String url) {
+		this(context, fetchListener, url, true);
 	}
 	
 	public Canteens getCanteens() {
