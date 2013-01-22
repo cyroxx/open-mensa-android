@@ -1,20 +1,27 @@
 package de.uni_potsdam.hpi.openmensa;
 
+import java.util.Map.Entry;
+
 import android.app.Activity;
-import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import de.uni_potsdam.hpi.openmensa.api.Canteen;
+import de.uni_potsdam.hpi.openmensa.api.Canteens;
+import de.uni_potsdam.hpi.openmensa.api.preferences.SettingsProvider;
+import de.uni_potsdam.hpi.openmensa.helpers.OnFinishedFetchingCanteensListener;
+import de.uni_potsdam.hpi.openmensa.helpers.RetrieveFeedTask;
 import de.uni_potsdam.hpi.openmensa.location.ILastLocationFinder;
 import de.uni_potsdam.hpi.openmensa.location.LastLocationFinder;
 import de.uni_potsdam.hpi.openmensa.location.LocationConstants;
 
-public class CanteenFinderActivity extends Activity {
+public class CanteenFinderActivity extends Activity implements OnFinishedFetchingCanteensListener {
 	public static final String TAG = MainActivity.TAG;
 	
 	protected ILastLocationFinder lastLocationFinder;
+	protected Location location;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,17 +66,9 @@ public class CanteenFinderActivity extends Activity {
 						.getLastBestLocation(LocationConstants.MAX_DISTANCE,
 								System.currentTimeMillis()
 										- LocationConstants.MAX_TIME);
-
-				// Update the place list based on the last known location within
-				// a defined radius.
-				// Note that this is *not* a forced update. The Place List
-				// Service has settings to
-				// determine how frequently the underlying web service should be
-				// pinged. This function
-				// is called everytime the Activity becomes active, so we don't
-				// want to flood the server
-				// unless the location has changed or a minimum latency or
-				// distance has been covered.
+				
+				location = lastKnownLocation;
+				
 				// TODO Modify the search radius based on user settings?
 				updateCanteens(lastKnownLocation, LocationConstants.DEFAULT_RADIUS, false);
 				return null;
@@ -95,8 +94,29 @@ public class CanteenFinderActivity extends Activity {
 		if (location != null) {
 			Log.d(TAG, "Updating place list.");
 			Log.d(TAG, location.getLatitude() + " - kkk " + location.getLongitude());
+			
+			// fetch canteen list from server
+			String baseUrl = SettingsProvider.getSourceUrl(this);
+			String url = baseUrl + "canteens" + "?limit=50&near[lat]=" + location.getLatitude() + "&near[lng]=" + location.getLongitude();
+
+			RetrieveFeedTask task = new RetrieveCanteenFeedTask(this, this, url, false);
+			task.execute(url);
 		} else
 			Log.d(TAG, "Updating place list for: No Previous Location Found");
+	}
+
+	@Override
+	public void onCanteenFetchFinished(RetrieveCanteenFeedTask task) {
+		Canteens canteens = task.getCanteens();
+		
+		for (Entry<String, Canteen> entry : canteens.entrySet()) {
+			Canteen canteen = entry.getValue();
+			
+			Log.d(TAG, "ID: " + canteen.key);
+			Log.d(TAG, "Name: " + canteen.name);
+			Log.d(TAG, "Distance: " + location.distanceTo( canteen.getLocation() ));
+		}
+		
 	}
 
 }
